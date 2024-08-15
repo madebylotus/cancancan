@@ -46,11 +46,10 @@ module CanCan
         table_metadata = ActiveRecord::TableMetadata.new(@model_class, table)
         predicate_builder = ActiveRecord::PredicateBuilder.new(table_metadata)
 
-        conditions = predicate_builder.resolve_column_aliases(conditions)
-
-        conditions.stringify_keys!
-
-        predicate_builder.build_from_hash(conditions).map { |b| visit_nodes(b) }.join(' AND ')
+        # Version tag v3.1.0 from commit 7bf836c5af9f666368e2d11fe2f4c81dd35570c8 worked, but we needed this change
+        # to use with newer ruby/rails releases.  Using newer releases breaks STI in the project sadly.
+        # https://github.com/CanCanCommunity/cancancan/pull/657
+        predicate_builder.build_from_hash(conditions.stringify_keys).map { |b| visit_nodes(b) }.join(' AND ')
       end
 
       def visit_nodes(node)
